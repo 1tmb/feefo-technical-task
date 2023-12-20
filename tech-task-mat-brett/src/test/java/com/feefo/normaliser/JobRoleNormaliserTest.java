@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class JobRoleNormaliserTest {
@@ -22,6 +24,42 @@ public class JobRoleNormaliserTest {
         final Set<String> normalisedJobRoles = Set.of(SOFTWARE_ENGINEER, QUANTITY_SURVEYOR, ACCOUNTANT);
         unitUnderTest = new JobRoleNormaliser(normalisedJobRoles);
     }
+
+
+    @Test
+    public void testConstructorValidationWhenNormalisedValueSetIsNull() {
+        // GIVEN a poorly initialised normaliser with a null set of normalised roles
+        // WHEN the normaliser is executed
+        // THEN an IllegalArgumentException is thrown
+        Assertions.assertThatThrownBy(() -> new JobRoleNormaliser(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The normalised text data set may not be empty");
+    }
+
+    @Test
+    public void testConstructorValidationWhenNormalisedValueSetIsEmpty() {
+        // GIVEN a poorly initialised normaliser with an empty set of normalised roles
+        // WHEN the normaliser is executed
+        // THEN an IllegalArgumentException is thrown
+        Assertions.assertThatThrownBy(() -> new JobRoleNormaliser(Collections.EMPTY_SET))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The normalised text data set may not be empty");
+    }
+
+    @Test
+    public void testConstructorValidationWhenNormalisedValueSetContainsBlanks() {
+        // GIVEN a poorly initialised normaliser with a set of blank normalised roles
+        // WHEN the normaliser is executed
+        // THEN an IllegalArgumentException is thrownS
+        Set<String> poorDataSet = new HashSet<>();
+        poorDataSet.add(null);
+        poorDataSet.add("");
+        poorDataSet.add(" ");
+        Assertions.assertThatThrownBy(() -> new JobRoleNormaliser(poorDataSet))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The normalised text data set may not be empty");
+    }
+
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", "   ", "\t\n\r\f"})

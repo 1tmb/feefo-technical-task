@@ -2,8 +2,8 @@ package com.feefo.ranking;
 
 public class ScoredJobRole implements ScoredType<String> {
 
-    private String jobRole;
-    private int score;
+    private final String jobRole;
+    private final int score;
 
     public ScoredJobRole(final String jobRole, final int score)
     {

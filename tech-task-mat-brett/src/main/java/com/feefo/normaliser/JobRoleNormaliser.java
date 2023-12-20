@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -22,11 +21,9 @@ public class JobRoleNormaliser implements Normaliser<String> {
 
     private final Set<String> normalisedOptions;
     public JobRoleNormaliser(final Set<String> normalisedOptions) {
-        // TODO - constructor tests
-
         this.normalisedOptions = Optional.ofNullable(normalisedOptions)
                 .map(options -> options.stream()
-                        .filter(((Predicate<String>) String::isBlank).negate())
+                        .filter(s -> s != null && !s.isBlank())
                         .collect(Collectors.toSet())
                 )
                 .orElse(Collections.emptySet());
@@ -35,54 +32,46 @@ public class JobRoleNormaliser implements Normaliser<String> {
             throw new IllegalArgumentException("The normalised text data set may not be empty");
         }
     }
-
-    @Override
     public Optional<String> normalise(final String rawInput) {
-
-        // no result if the input is blank
         if (null == rawInput || rawInput.isBlank()) {
             return Optional.empty();
         }
 
-        final List<ScoredJobRole> scoredJobRoles = new ArrayList<>();
+        final List<ScoredJobRole> scoredJobRoles = scoreRawInput(rawInput);
 
-        // score the raw input against the normalised options, giving one point per token which appears in each option
-        final List<String> tokenisedRawInput = getStringAsTokens(rawInput);
+        final Optional<ScoredJobRole> highestScoringJobRole = findHighestScoringJobRole(scoredJobRoles);
 
-        for (final String normalisedOption: normalisedOptions) {
-            int qualityScore = 0;
-            for (final String rawToken: tokenisedRawInput) {
-                if (normalisedOption.contains(rawToken)) {
-                    qualityScore++;
-                }
-            }
-
-            // collect the scores into a ranked object which can be filtered with a stream to find the max result
-            scoredJobRoles.add(new ScoredJobRole(normalisedOption, qualityScore));
-        }
-
-        // identify if there is a unique high scoring normalised option, and if so, return it
-        final Optional<ScoredJobRole> highestScoringJobRole = scoredJobRoles.stream()
-                .max(Comparator.comparing(ScoredJobRole::getScore));
-
-        if (highestScoringJobRole.isEmpty() || highestScoringJobRole.get().getScore() == 0) {
-            return Optional.empty();
-        }
-
-        int highestScore = highestScoringJobRole.get().getScore();
-
-        int occurancesOfHighestScore = 0;
-        for(ScoredJobRole scoredJobRole : scoredJobRoles) {
-            if (scoredJobRole.getScore() == highestScore) {
-                occurancesOfHighestScore++;
-            }
-        }
-
-        if (occurancesOfHighestScore != 1) {
+        if (highestScoringJobRole.isEmpty() || highestScoringJobRole.get().getScore() == 0
+                || countOccurrencesOfHighestScore(scoredJobRoles, highestScoringJobRole.get().getScore()) != 1) {
             return Optional.empty();
         }
 
         return Optional.of(highestScoringJobRole.get().getType());
+    }
+
+    private List<ScoredJobRole> scoreRawInput(final String rawInput) {
+        final List<String> tokenisedRawInput = getStringAsTokens(rawInput);
+        final List<ScoredJobRole> scoredJobRoles = new ArrayList<>();
+
+        for (String normalisedOption : normalisedOptions) {
+            int qualityScore = (int) tokenisedRawInput.stream()
+                    .filter(normalisedOption::contains)
+                    .count();
+            scoredJobRoles.add(new ScoredJobRole(normalisedOption, qualityScore));
+        }
+
+        return scoredJobRoles;
+    }
+
+    private Optional<ScoredJobRole> findHighestScoringJobRole(final List<ScoredJobRole> scoredJobRoles) {
+        return scoredJobRoles.stream()
+                .max(Comparator.comparing(ScoredJobRole::getScore));
+    }
+
+    private int countOccurrencesOfHighestScore(final List<ScoredJobRole> scoredJobRoles, int highestScore) {
+        return (int) scoredJobRoles.stream()
+                .filter(scoredJobRole -> scoredJobRole.getScore() == highestScore)
+                .count();
     }
 
     private List<String> getStringAsTokens(final String s) {
