@@ -55,7 +55,7 @@ public class JobRoleNormaliser implements Normaliser<String> {
 
         for (String normalisedOption : normalisedOptions) {
             int qualityScore = (int) tokenisedRawInput.stream()
-                    .filter(normalisedOption::contains)
+                    .filter(token -> normalisedOption.toLowerCase().contains(token.toLowerCase()))
                     .count();
             scoredJobRoles.add(new ScoredJobRole(normalisedOption, qualityScore));
         }

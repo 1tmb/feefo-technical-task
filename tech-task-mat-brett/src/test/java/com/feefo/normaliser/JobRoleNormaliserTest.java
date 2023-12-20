@@ -8,20 +8,16 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class JobRoleNormaliserTest {
 
     private JobRoleNormaliser unitUnderTest;
-    private final String SOFTWARE_ENGINEER = "Software engineer";
-    private final String QUANTITY_SURVEYOR = "Quantity surveyor";
-    private final String ACCOUNTANT = "Accountant";
 
     @BeforeEach
     public void setUp() {
-        final Set<String> normalisedJobRoles = Set.of(SOFTWARE_ENGINEER, QUANTITY_SURVEYOR, ACCOUNTANT);
+        final Set<String> normalisedJobRoles = Set.of("Software engineer", "Quantity surveyor", "Accountant");
         unitUnderTest = new JobRoleNormaliser(normalisedJobRoles);
     }
 
@@ -41,7 +37,8 @@ public class JobRoleNormaliserTest {
         // GIVEN a poorly initialised normaliser with an empty set of normalised roles
         // WHEN the normaliser is executed
         // THEN an IllegalArgumentException is thrown
-        Assertions.assertThatThrownBy(() -> new JobRoleNormaliser(Collections.EMPTY_SET))
+        final Set<String> emptySet = new HashSet<>();
+        Assertions.assertThatThrownBy(() -> new JobRoleNormaliser(emptySet))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The normalised text data set may not be empty");
     }
@@ -51,7 +48,7 @@ public class JobRoleNormaliserTest {
         // GIVEN a poorly initialised normaliser with a set of blank normalised roles
         // WHEN the normaliser is executed
         // THEN an IllegalArgumentException is thrownS
-        Set<String> poorDataSet = new HashSet<>();
+        final Set<String> poorDataSet = new HashSet<>();
         poorDataSet.add(null);
         poorDataSet.add("");
         poorDataSet.add(" ");
@@ -99,12 +96,13 @@ public class JobRoleNormaliserTest {
 
     /**
      * Strong match.
-     * @param rawJobRole
-     * @param expectedNormalisedJobRole
+     * @param rawJobRole input
+     * @param expectedNormalisedJobRole expected output
      */
     @ParameterizedTest
     @CsvSource({
             "Java engineer, Software engineer",
+            "Java EnGinEeR, Software engineer", // mixed case
             "C# engineer, Software engineer",
             "Accountant, Accountant",
             "Chief Accountant, Accountant"
@@ -115,6 +113,7 @@ public class JobRoleNormaliserTest {
         // WHEN the normaliser is executed
         // THEN the expected suggestion is returned
         Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).isPresent();
-        Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).get().isEqualTo(expectedNormalisedJobRole);
+        final String actualNormalisedJobRole = unitUnderTest.normalise(rawJobRole).get();
+        Assertions.assertThat(actualNormalisedJobRole).isEqualTo(expectedNormalisedJobRole);
     }
 }
