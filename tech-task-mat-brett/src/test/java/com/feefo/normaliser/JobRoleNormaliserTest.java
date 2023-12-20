@@ -25,12 +25,12 @@ public class JobRoleNormaliserTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", "   ", "\t\n\r\f"})
-    public void testEmptyOptionalReturnedWhenInputIsBlank(final String unnormalisedJobRole)
+    public void testEmptyOptionalReturnedWhenInputIsBlank(final String rawJobRole)
     {
         // GIVEN a blank unnormalised input
         // WHEN the normaliser is executed
         // THEN no suggestion is returned
-        Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).isEmpty();
+        Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).isEmpty();
     }
 
     /**
@@ -39,11 +39,11 @@ public class JobRoleNormaliserTest {
     @Test
     public void testEmptyOptionalReturnedWhenNormalisationScoreIsZero() {
         // GIVEN some normalised job roles
-        // AND an unnormalised job role which doesn't match any of them
-        final String unnormalisedJobRole = "QA";
+        // AND a raw job role which doesn't match any of them
+        final String rawJobRole = "QA";
         // WHEN the normaliser is executed
         // THEN no suggestion is returned
-        Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).isEmpty();
+        Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).isEmpty();
     }
 
     /**
@@ -52,11 +52,11 @@ public class JobRoleNormaliserTest {
     @Test
     public void testEmptyOptionalReturnedWhenNormalisationScoreIsHung() {
         // GIVEN some normalised job roles
-        // AND an unnormalised job role which equally matches two of them
-        final String unnormalisedJobRole = "Software Accountant";
+        // AND a raw job role which equally matches two of them
+        final String rawJobRole = "Software Accountant";
         // WHEN the normaliser is executed
         // THEN no suggestion is returned
-        Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).isEmpty();
+        Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).isEmpty();
     }
 
     /**
@@ -73,10 +73,10 @@ public class JobRoleNormaliserTest {
     })
     public void testNormalise(final String unnormalisedJobRole, final String expectedNormalisedJobRole) {
         // GIVEN some normalised job roles
-        // AND an unnormalised job role which is a strong score for a normalised option
+        // AND a raw job role which is a strong score for a normalised option
         // WHEN the normaliser is executed
-        // THEN no suggestion is returned
+        // THEN the expected suggestion is returned
         Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).isPresent();
-        Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).isEqualTo(expectedNormalisedJobRole);
+        Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).get().isEqualTo(expectedNormalisedJobRole);
     }
 }
