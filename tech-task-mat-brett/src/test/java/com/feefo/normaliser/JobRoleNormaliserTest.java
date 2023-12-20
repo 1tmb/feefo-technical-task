@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -64,7 +65,12 @@ public class JobRoleNormaliserTest {
      * @param expectedNormalisedJobRole
      */
     @ParameterizedTest
-    // TODO handle args and say we're switching to sets so we have no duplicates in the normalised dataset
+    @CsvSource({
+            "Java engineer, Software engineer",
+            "C# engineer, Software engineer",
+            "Accountant, Accountant",
+            "Chief Accountant, Accountant"
+    })
     public void testNormalise(final String unnormalisedJobRole, final String expectedNormalisedJobRole) {
         // GIVEN some normalised job roles
         // AND an unnormalised job role which is a strong score for a normalised option

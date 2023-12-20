@@ -18,12 +18,12 @@ public class JobRoleNormaliser implements Normaliser<String> {
             return Optional.empty();
         }
 
-        // tokeneise the search string
-        // iterate over the dictionary and for each item:
-         - tokeneise the dictionary item
-                match the word - score 1 point if present
-                group the results by score
-                pop the highest scoring item
+//        // tokeneise the search string
+//        // iterate over the dictionary and for each item:
+//         - tokeneise the dictionary item
+//                match the word - score 1 point if present
+//                group the results by score
+//                pop the highest scoring item
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }
