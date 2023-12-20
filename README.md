@@ -23,11 +23,11 @@ It is also to disambiguate the semantics of `null` coming back from the normalis
 
 My first thoughts upon reading the challenge was: "OK this is a type of fuzzy match".
 
-My second thought was: "What libraries are out there which solve this"?
+My second thought, not being especially an expert on fuzzy matching logic, was: "What libraries are out there which solve this"?
 
 This quickly led to a description of Levenshtein distancing and a horrible looking algorithm. For the suggested time for the task, this seemed to be over the top (i.e. being able to match typos, or equivalent terms such as JavaScript and JS).
 
-After a brief search for a suitably licensed simple fuzzy matching library with an exposed scoring system did not turn up a clear result, I decided to approach this task as an opportunity to showcase a bit of java streams knowledge and write a highly simplified tokenising algorithm which scores a point if there is a direct hit for a search word (case insensitive).
+After a brief search for a suitably licensed simple fuzzy matching library with an exposed scoring system did not turn up a clear result, I decided to approach this task as an opportunity to showcase a bit of java streams knowledge and write a highly simplified tokenising algorithm which scores a point if there is a direct hit for a search word.
 
 This approach is very coarse-grained and leads to some interesting shortcomings (i.e. what happens if multiple normalised values score the same - how do you deterministically select the same one for each invocation?). I anticipate that this will provide another discussion point!
 

@@ -38,12 +38,15 @@ public class JobRoleNormaliser implements Normaliser<String> {
 
     @Override
     public Optional<String> normalise(final String rawInput) {
+
+        // no result if the input is blank
         if (null == rawInput || rawInput.isBlank()) {
             return Optional.empty();
         }
 
         final List<ScoredJobRole> scoredJobRoles = new ArrayList<>();
 
+        // score the raw input against the normalised options, giving one point per token which appears in each option
         final List<String> tokenisedRawInput = getStringAsTokens(rawInput);
 
         for (final String normalisedOption: normalisedOptions) {
@@ -53,13 +56,29 @@ public class JobRoleNormaliser implements Normaliser<String> {
                     qualityScore++;
                 }
             }
+
+            // collect the scores into a ranked object which can be filtered with a stream to find the max result
             scoredJobRoles.add(new ScoredJobRole(normalisedOption, qualityScore));
         }
 
+        // identify if there is a unique high scoring normalised option, and if so, return it
         final Optional<ScoredJobRole> highestScoringJobRole = scoredJobRoles.stream()
                 .max(Comparator.comparing(ScoredJobRole::getScore));
 
         if (highestScoringJobRole.isEmpty() || highestScoringJobRole.get().getScore() == 0) {
+            return Optional.empty();
+        }
+
+        int highestScore = highestScoringJobRole.get().getScore();
+
+        int occurancesOfHighestScore = 0;
+        for(ScoredJobRole scoredJobRole : scoredJobRoles) {
+            if (scoredJobRole.getScore() == highestScore) {
+                occurancesOfHighestScore++;
+            }
+        }
+
+        if (occurancesOfHighestScore != 1) {
             return Optional.empty();
         }
 

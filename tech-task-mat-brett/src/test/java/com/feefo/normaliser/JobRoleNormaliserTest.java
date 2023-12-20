@@ -27,7 +27,7 @@ public class JobRoleNormaliserTest {
     @ValueSource(strings = {"", "   ", "\t\n\r\f"})
     public void testEmptyOptionalReturnedWhenInputIsBlank(final String rawJobRole)
     {
-        // GIVEN a blank unnormalised input
+        // GIVEN blank raw input
         // WHEN the normaliser is executed
         // THEN no suggestion is returned
         Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).isEmpty();
@@ -61,7 +61,7 @@ public class JobRoleNormaliserTest {
 
     /**
      * Strong match.
-     * @param unnormalisedJobRole
+     * @param rawJobRole
      * @param expectedNormalisedJobRole
      */
     @ParameterizedTest
@@ -71,12 +71,12 @@ public class JobRoleNormaliserTest {
             "Accountant, Accountant",
             "Chief Accountant, Accountant"
     })
-    public void testNormalise(final String unnormalisedJobRole, final String expectedNormalisedJobRole) {
+    public void testNormalise(final String rawJobRole, final String expectedNormalisedJobRole) {
         // GIVEN some normalised job roles
         // AND a raw job role which is a strong score for a normalised option
         // WHEN the normaliser is executed
         // THEN the expected suggestion is returned
-        Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).isPresent();
-        Assertions.assertThat(unitUnderTest.normalise(unnormalisedJobRole)).get().isEqualTo(expectedNormalisedJobRole);
+        Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).isPresent();
+        Assertions.assertThat(unitUnderTest.normalise(rawJobRole)).get().isEqualTo(expectedNormalisedJobRole);
     }
 }
